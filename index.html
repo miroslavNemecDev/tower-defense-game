@@ -53,6 +53,7 @@
             position: relative;
             padding: 0;
             margin: 0;
+            padding-top: 7vh;
         }
 
         /* Reklamy */
@@ -66,8 +67,11 @@
             color: white;
             font-size: clamp(11px, 2.2vw, 15px);
             font-weight: bold;
-            position: relative;
-            flex-shrink: 0; /* Nikdy se nesmrskne */
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+            flex-shrink: 0;
         }
 
         .ad-banner::before {
@@ -388,20 +392,12 @@
     </style>
 </head>
 <body>
-    <!-- Horní reklama - PropellerAds -->
+    <!-- Horní reklama - A-ads (LIVE) -->
     <div class="ad-banner" id="topAd">
-        <!-- PropellerAds Banner Code -->
-        <!-- 
-            INSTRUKCE PRO AKTIVACI:
-            1. Jdi na https://publishers.propellerads.com/#/app/auth/signUp
-            2. Zaregistruj se (email, heslo)
-            3. Po přihlášení: Dashboard → "Add Zone" → "Banner" → 728x90
-            4. Zkopíruj kód a nahraď níže tento placeholder
-            5. Vymaz tento komentář a nahraď divem s jejich kódem
-        -->
-        <div style="text-align: center;">
-            <!-- Sem vložíš PropellerAds kód po registraci -->
-            <div id="propellerPlaceholder">🎮 PropellerAds Banner (Zone ID: YOUR_ZONE_ID)</div>
+        <!-- A-ads Banner - INTERNAL (bez Advertise here linku) -->
+        <div id="frame" style="width: 100%; margin: auto; position: relative; z-index: 99998;">
+            <iframe data-aa="2418671" src="//acceptable.a-ads.com/2418671/?size=Adaptive"
+                style="border:0; padding:0; width:100%; height:auto; overflow:hidden; display: block; margin: auto"></iframe>
         </div>
     </div>
 
@@ -483,6 +479,6 @@
         </div>
     </div>
 
-    <script src="game.js?v=21"></script>
+    <script src="game.js?v=22"></script>
 </body>
 </html>
