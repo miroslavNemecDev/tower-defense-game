@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -59,7 +59,7 @@
         /* Reklamy */
         .ad-banner {
             width: 100%;
-            height: 7vh; /* 7% výšky obrazovky */
+            height: 7vh; /* 7% of screen height */
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             justify-content: center;
@@ -75,7 +75,7 @@
         }
 
         .ad-banner::before {
-            content: '📢 REKLAMA';
+            content: '📢 AD';
             position: absolute;
             top: 5px;
             left: 10px;
@@ -86,11 +86,11 @@
         #gameContainer {
             position: relative;
             width: 100%;
-            flex: 1; /* Zabere zbytek prostoru mezi reklamami */
+            flex: 1; /* Fill remaining space */
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            min-height: 0; /* Důležité pro správný flex */
+            min-height: 0; /* Important for proper flex */
         }
 
         #gameCanvas {
@@ -405,7 +405,7 @@
         <canvas id="gameCanvas"></canvas>
         <div id="score">Score: 0</div>
         <button id="shopBtn">🛒</button>
-        <button id="refreshBtn" onclick="location.reload(true)">🔄 Obnovit</button>
+        <button id="refreshBtn" onclick="location.reload(true)">🔄 Reload</button>
         
         <!-- Shop Menu -->
         <div id="shopMenu">
@@ -413,58 +413,58 @@
             <div id="coinsDisplay">💰 Coins: 0</div>
             
             <div class="shop-item" id="rocketItem">
-                <h3>🚀 RAKETOVÝ SYSTÉM</h3>
-                <p>Automaticky ničí letadla v okolí budov!</p>
-                <p style="color: #FFD700; font-weight: bold;">Cena: 50 Coins</p>
-                <button class="btn" id="buyRocketBtn">KOUPIT</button>
+                <h3>🚀 ROCKET SYSTEM</h3>
+                <p>Automatically destroys nearby airplanes!</p>
+                <p style="color: #FFD700; font-weight: bold;">Price: 50 Coins</p>
+                <button class="btn" id="buyRocketBtn">BUY</button>
             </div>
             
             <div class="shop-item" id="fighterItem">
-                <h3>✈️ VLASTNÍ STÍHAČKA</h3>
-                <p>Létá kolem a automaticky sestřeluje nepřátele!</p>
-                <p style="color: #00BFFF;">Máš: <span id="fighterCount">0</span>/2</p>
-                <p style="color: #FFD700; font-weight: bold;">Cena: 150 Coins</p>
-                <button class="btn" id="buyFighterBtn" style="background: #00BFFF; box-shadow: 0 4px 0 #0080CC;">KOUPIT</button>
+                <h3>✈️ OWN FIGHTER</h3>
+                <p>Flies around and automatically shoots enemies!</p>
+                <p style="color: #00BFFF;">You have: <span id="fighterCount">0</span>/2</p>
+                <p style="color: #FFD700; font-weight: bold;">Price: 150 Coins</p>
+                <button class="btn" id="buyFighterBtn" style="background: #00BFFF; box-shadow: 0 4px 0 #0080CC;">BUY</button>
             </div>
             
             <div style="margin: 1vh 0; padding: clamp(10px, 1.5vh, 15px); background: rgba(0,255,0,0.2); border: 2px solid #00ff00; border-radius: 10px; width: 90%; max-width: 500px; flex-shrink: 0;">
-                <h3 style="color: #00ff00; font-size: clamp(16px, 3.5vw, 22px); margin-bottom: 1vh;">♻️ AUTO-OPRAVA</h3>
-                <p style="font-size: clamp(13px, 2.8vw, 15px); margin: 0.5vh 0;">Za každých 20 sestřelů se opraví 1 budova!</p>
-                <p id="repairProgress" style="font-size: clamp(15px, 3.2vw, 18px); font-weight: bold; margin: 0.5vh 0;">Pokrok: 0/20</p>
+                <h3 style="color: #00ff00; font-size: clamp(16px, 3.5vw, 22px); margin-bottom: 1vh;">♻️ AUTO-REPAIR</h3>
+                <p style="font-size: clamp(13px, 2.8vw, 15px); margin: 0.5vh 0;">Every 20 shots, 1 tower gets repaired!</p>
+                <p id="repairProgress" style="font-size: clamp(15px, 3.2vw, 18px); font-weight: bold; margin: 0.5vh 0;">Progress: 0/20</p>
             </div>
             
-            <button class="btn" id="closeShopBtn">ZAVŘÍT</button>
+            <button class="btn" id="closeShopBtn">CLOSE</button>
         </div>
         
         <div id="startScreen">
             <h1>🏢 TOWER DEFENSE 🏢</h1>
             <div class="instructions">
-                Sestřeluj letadla klikáním na ně!<br><br>
-                <strong>Ovládání:</strong><br>
-                🎯 Klikni na letadlo = Sestřeleno!<br>
-                ⚠️ Červené varování = letadlo přilétá!<br>
-                ✈️ Rychlá červená = 3 body<br>
-                ✈️ Normální šedá = 2 body<br>
-                ✈️ Pomalá zelená = 1 bod<br><br>
+                Shoot down airplanes by clicking on them!<br><br>
+                <strong>Controls:</strong><br>
+                🎯 Click on airplane = Shot down!<br>
+                ⚠️ Red warning = airplane incoming!<br>
+                ✈️ Fast red = 3 points<br>
+                ✈️ Normal gray = 2 points<br>
+                ✈️ Slow green = 1 point<br><br>
                 <strong>💀 Game Over:</strong><br>
-                🏢 2 životy = 2 mrakodrapy<br>
-                💥 Letadlo narazí = budova zničena<br>
-                ☠️ Obě budovy zničeny = GAME OVER<br><br>
+                🏢 2 lives = 2 towers<br>
+                💥 Airplane hits = tower destroyed<br>
+                ☠️ Both towers destroyed = GAME OVER<br><br>
                 <strong>📺 Rewarded Ad:</strong><br>
-                💚 Po Game Over můžeš sledovat reklamu<br>
-                🔄 Obnov oba životy a pokračuj!<br><br>
-                <small style="color: #888;">Verze: 8.3 - FIXED LAYOUT �</small>
+                💚 After Game Over watch an ad<br>
+                🔄 Restore both lives and continue!<br><br>
+                <small style="color: #888;">Version: 8.3 - FIXED LAYOUT ✓</small>
             </div>
-            <button class="btn" id="startBtn">START HRY</button>
-            <button class="btn" onclick="location.reload(true)" style="background: #4444ff; box-shadow: 0 4px 0 #0000cc;">🔄 OBNOVIT STRÁNKU</button>
+            <button class="btn" id="startBtn">START GAME</button>
+            <button class="btn" onclick="location.reload(true)" style="background: #4444ff; box-shadow: 0 4px 0 #0000cc;">🔄 RELOAD PAGE</button>
         </div>
 
         <div id="gameOverScreen">
             <h1>GAME OVER</h1>
             <div id="finalScore"></div>
-            <button class="btn" id="watchAdBtn" style="background: #00CC00; box-shadow: 0 4px 0 #008800;">📺 SLEDUJ REKLAMU - OBNOV HRU</button>
-            <button class="btn" id="restartBtn">HRÁT ZNOVU</button>
-            <button class="btn" id="shareBtn">SDÍLET SKÓRE</button>
+            <button class="btn" id="watchAdBtn" style="background: #00CC00; box-shadow: 0 4px 0 #008800;">📺 WATCH AD - REVIVE</button>
+            <button class="btn" id="restartBtn">PLAY AGAIN</button>
+            <button class="btn" id="shareBtn">SHARE SCORE</button>
         </div>
     </div>
 
@@ -472,10 +472,10 @@
     <div id="videoAdOverlay">
         <div id="videoAdContent">
             <div id="videoAdPlayer">
-                <div>📺 PŘEHRÁVÁNÍ REKLAMY</div>
+                <div>📺 PLAYING AD</div>
                 <div id="adTimer">5</div>
             </div>
-            <button class="btn" id="skipAdBtn" style="background: #FF4444; box-shadow: 0 4px 0 #CC0000;">PŘESKOČIT REKLAMU</button>
+            <button class="btn" id="skipAdBtn" style="background: #FF4444; box-shadow: 0 4px 0 #CC0000;">SKIP AD</button>
         </div>
     </div>
 

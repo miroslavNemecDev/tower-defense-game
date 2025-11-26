@@ -215,38 +215,38 @@ class Game {
                 this.coins -= 50;
                 this.hasRocketSystem = true;
                 this.updateShopDisplay();
-                alert('🚀 Raketový systém aktivován!');
+                alert('🚀 Rocket system activated!');
             } else if (this.hasRocketSystem) {
-                alert('✅ Už máš raketový systém!');
+                alert('✅ You already have rocket system!');
             } else {
-                alert('❌ Nemáš dost coins! Potřebuješ 50 coins.');
+                alert('❌ Not enough coins! You need 50 coins.');
             }
         });
         
         buyFighterBtn.addEventListener('click', () => {
-            if (this.coins >= 1 && this.maxFighters < 2) {
-                this.coins -= 1;
+            if (this.coins >= 150 && this.maxFighters < 2) {
+                this.coins -= 150;
                 this.maxFighters++;
                 this.spawnFriendlyFighter();
                 this.updateShopDisplay(); 
-                alert('✈️ Vlastní stíhačka zakoupena!');
+                alert('✈️ Fighter purchased!');
             } else if (this.maxFighters >= 2) {
-                alert('✅ Už máš maximum stíhaček (2)!');
+                alert('✅ You already have maximum fighters (2)!');
             } else {
-                alert('❌ Nemáš dost coins! Potřebuješ 150 coins.');
+                alert('❌ Not enough coins! You need 150 coins.');
             }
         });
     }
     
     updateShopDisplay() {
         document.getElementById('coinsDisplay').textContent = `💰 Coins: ${this.coins}`;
-        document.getElementById('repairProgress').textContent = `Pokrok: ${20 - this.shotsUntilRepair}/20`;
+        document.getElementById('repairProgress').textContent = `Progress: ${20 - this.shotsUntilRepair}/20`;
         document.getElementById('fighterCount').textContent = this.maxFighters;
         
         const rocketItem = document.getElementById('rocketItem');
         if (this.hasRocketSystem) {
             rocketItem.classList.add('owned');
-            document.getElementById('buyRocketBtn').textContent = 'VLASTNÍŠ ✓';
+            document.getElementById('buyRocketBtn').textContent = 'OWNED ✓';
             document.getElementById('buyRocketBtn').disabled = true;
         }
         
@@ -439,14 +439,14 @@ class Game {
                 url: window.location.href
             });
         } else {
-            // Fallback - zkopírování do clipboardu
+            // Fallback - copy to clipboard
             const textarea = document.createElement('textarea');
             textarea.value = text + ' ' + window.location.href;
             document.body.appendChild(textarea);
             textarea.select();
             document.execCommand('copy');
             document.body.removeChild(textarea);
-            alert('Skóre zkopírováno do schránky!');
+            alert('Score copied to clipboard!');
         }
     }
     
@@ -1514,8 +1514,8 @@ document.addEventListener('DOMContentLoaded', () => {
         game = new Game();
         console.log('Game object created:', game);
     } catch (error) {
-        console.error('Chyba při vytváření hry:', error);
-        alert('Chyba při načítání hry: ' + error.message);
+        console.error('Error creating game:', error);
+        alert('Error loading game: ' + error.message);
         return;
     }
     
