@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
+    <title>Tower Defense</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <!-- AdInPlay SDK - ZAKOMENTOVÁNO dokud se nezaregistruješ -->
+    <!-- 
+    Po registraci na https://www.adinplay.com/ odkomentuj a nahraď 'YOUR_GAME_ID':
+    <script src="https://api.adinplay.com/libs/aiptag/pub/DPT/YOUR_GAME_ID/tag.min.js"></script>
+    <script>
+        window.aiptag = window.aiptag || {cmd: []};
+        aiptag.cmd.display = aiptag.cmd.display || [];
+        aiptag.cmd.player = aiptag.cmd.player || [];
+        
+        aiptag.cmd.player.push(function() {
+            console.log('AdInPlay SDK ready');
+        });
+    </script>
+    -->
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+            height: 100vh;
+            width: 100vw;
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            touch-action: pan-x pan-y pinch-zoom;
+            overscroll-behavior-y: none;
+            -webkit-overscroll-behavior-y: none;
+            position: relative;
+            padding: 0;
+            margin: 0;
+        }
+
+        /* Reklamy */
+        .ad-banner {
+            width: 100%;
+            height: 7vh; /* 7% výšky obrazovky */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: clamp(11px, 2.2vw, 15px);
+            font-weight: bold;
+            position: relative;
+            flex-shrink: 0; /* Nikdy se nesmrskne */
+        }
+
+        .ad-banner::before {
+            content: '📢 REKLAMA';
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            font-size: clamp(10px, 2vw, 12px);
+            opacity: 0.7;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            flex: 1; /* Zabere zbytek prostoru mezi reklamami */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0; /* Důležité pro správný flex */
+        }
+
+        #gameCanvas {
+            display: block;
+            width: 100%;
+            flex: 1; /* Canvas zabere dostupný prostor */
+            min-height: 0;
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 100%);
+            border: none;
+            touch-action: none;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+
+        #startScreen, #gameOverScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            z-index: 10;
+            box-sizing: border-box;
+            padding: 2vh 2vw;
+            overflow-y: auto;
+        }
+
+        #gameOverScreen {
+            display: none;
+        }
+
+        /* Video Ad Overlay */
+        #videoAdOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        #videoAdContent {
+            background: #222;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 90%;
+        }
+
+        #videoAdPlayer {
+            width: 100%;
+            max-width: 640px;
+            height: 360px;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4, #45B7D1);
+            background-size: 400% 400%;
+            animation: gradient 3s ease infinite;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 24px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #adTimer {
+            font-size: 48px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+
+        #skipAdBtn {
+            display: none;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            #videoAdPlayer {
+                height: 250px;
+                font-size: 18px;
+            }
+        }
+
+        h1 {
+            font-size: clamp(24px, 6vw, 48px);
+            margin-bottom: clamp(10px, 2vh, 20px);
+            text-shadow: 3px 3px 0px #ff0000;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .btn {
+            background: #ff4444;
+            color: white;
+            border: none;
+            padding: clamp(10px, 2vh, 15px) clamp(20px, 5vw, 40px);
+            font-size: clamp(16px, 4vw, 24px);
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            margin: clamp(5px, 1vh, 10px);
+            border-radius: 5px;
+            box-shadow: 0 4px 0 #cc0000;
+            transition: all 0.1s;
+        }
+
+        .btn:hover {
+            background: #ff6666;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0 0 #cc0000;
+        }
+
+        .instructions {
+            margin: clamp(10px, 2vh, 20px);
+            text-align: center;
+            font-size: clamp(12px, 3vw, 18px);
+            max-width: 90%;
+            line-height: 1.4;
+        }
+
+        #score {
+            position: absolute;
+            top: 1vh;
+            left: 1vw;
+            font-size: clamp(14px, 3vw, 20px);
+            color: white;
+            text-shadow: 2px 2px 0px #000;
+            z-index: 5;
+            font-weight: bold;
+            max-width: 60%;
+            line-height: 1.3;
+        }
+        
+        #shopBtn {
+            position: absolute;
+            top: 1vh;
+            right: 1vw;
+            background: #FFD700;
+            color: #333;
+            border: none;
+            padding: 0;
+            font-size: clamp(20px, 4vw, 28px);
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 0 #B8860B;
+            z-index: 5;
+            font-weight: bold;
+            width: clamp(45px, 8vw, 60px);
+            height: clamp(45px, 8vw, 60px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #shopBtn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #B8860B;
+        }
+        
+        #shopMenu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 2vh 5vw;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        
+        #shopMenu h1 {
+            margin: 2vh 0;
+            font-size: clamp(24px, 5vw, 36px);
+        }
+        
+        #coinsDisplay {
+            font-size: clamp(18px, 4vw, 24px);
+            margin: 1vh 0 2vh 0;
+        }
+        
+        .shop-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #FFD700;
+            border-radius: 10px;
+            padding: clamp(15px, 2vh, 25px);
+            margin: 1vh 0;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .shop-item h3 {
+            color: #FFD700;
+            margin-bottom: 1vh;
+            font-size: clamp(18px, 4vw, 24px);
+        }
+        
+        .shop-item p {
+            font-size: clamp(14px, 3vw, 16px);
+            margin: 0.5vh 0;
+        }
+        
+        .shop-item.owned {
+            border-color: #00ff00;
+            opacity: 0.6;
+        }
+        
+        .shop-item.owned h3 {
+            color: #00ff00;
+        }
+        
+        #closeShopBtn {
+            margin-top: 2vh;
+            margin-bottom: 2vh;
+            background: #666;
+            box-shadow: 0 4px 0 #333;
+            padding: clamp(10px, 2vh, 15px) clamp(30px, 8vw, 50px);
+            font-size: clamp(16px, 3.5vw, 22px);
+            flex-shrink: 0;
+        }
+
+        #refreshBtn {
+            position: absolute;
+            bottom: 1vh;
+            left: 1vw;
+            background: #4444ff;
+            color: white;
+            border: none;
+            padding: clamp(8px, 1.5vh, 12px) clamp(15px, 3vw, 25px);
+            font-size: clamp(14px, 2.5vw, 20px);
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            border-radius: 5px;
+            box-shadow: 0 4px 0 #0000cc;
+            z-index: 5;
+            font-weight: bold;
+        }
+
+        #refreshBtn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0000cc;
+        }
+
+        #finalScore {
+            font-size: 36px;
+            margin: 20px;
+            color: #ffff00;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 32px;
+            }
+            .btn {
+                font-size: 20px;
+                padding: 12px 30px;
+            }
+            .instructions {
+                font-size: 16px;
+            }
+        }
+        
+        @keyframes fadeOut {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.5); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Horní reklama - PropellerAds -->
+    <div class="ad-banner" id="topAd">
+        <!-- PropellerAds Banner Code -->
+        <!-- 
+            INSTRUKCE PRO AKTIVACI:
+            1. Jdi na https://publishers.propellerads.com/#/app/auth/signUp
+            2. Zaregistruj se (email, heslo)
+            3. Po přihlášení: Dashboard → "Add Zone" → "Banner" → 728x90
+            4. Zkopíruj kód a nahraď níže tento placeholder
+            5. Vymaz tento komentář a nahraď divem s jejich kódem
+        -->
+        <div style="text-align: center;">
+            <!-- Sem vložíš PropellerAds kód po registraci -->
+            <div id="propellerPlaceholder">🎮 PropellerAds Banner (Zone ID: YOUR_ZONE_ID)</div>
+        </div>
+    </div>
+
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="score">Score: 0</div>
+        <button id="shopBtn">🛒</button>
+        <button id="refreshBtn" onclick="location.reload(true)">🔄 Obnovit</button>
+        
+        <!-- Shop Menu -->
+        <div id="shopMenu">
+            <h1 style="color: #FFD700;">🛒 SHOP</h1>
+            <div id="coinsDisplay">💰 Coins: 0</div>
+            
+            <div class="shop-item" id="rocketItem">
+                <h3>🚀 RAKETOVÝ SYSTÉM</h3>
+                <p>Automaticky ničí letadla v okolí budov!</p>
+                <p style="color: #FFD700; font-weight: bold;">Cena: 50 Coins</p>
+                <button class="btn" id="buyRocketBtn">KOUPIT</button>
+            </div>
+            
+            <div class="shop-item" id="fighterItem">
+                <h3>✈️ VLASTNÍ STÍHAČKA</h3>
+                <p>Létá kolem a automaticky sestřeluje nepřátele!</p>
+                <p style="color: #00BFFF;">Máš: <span id="fighterCount">0</span>/2</p>
+                <p style="color: #FFD700; font-weight: bold;">Cena: 150 Coins</p>
+                <button class="btn" id="buyFighterBtn" style="background: #00BFFF; box-shadow: 0 4px 0 #0080CC;">KOUPIT</button>
+            </div>
+            
+            <div style="margin: 1vh 0; padding: clamp(10px, 1.5vh, 15px); background: rgba(0,255,0,0.2); border: 2px solid #00ff00; border-radius: 10px; width: 90%; max-width: 500px; flex-shrink: 0;">
+                <h3 style="color: #00ff00; font-size: clamp(16px, 3.5vw, 22px); margin-bottom: 1vh;">♻️ AUTO-OPRAVA</h3>
+                <p style="font-size: clamp(13px, 2.8vw, 15px); margin: 0.5vh 0;">Za každých 20 sestřelů se opraví 1 budova!</p>
+                <p id="repairProgress" style="font-size: clamp(15px, 3.2vw, 18px); font-weight: bold; margin: 0.5vh 0;">Pokrok: 0/20</p>
+            </div>
+            
+            <button class="btn" id="closeShopBtn">ZAVŘÍT</button>
+        </div>
+        
+        <div id="startScreen">
+            <h1>🏢 TOWER DEFENSE 🏢</h1>
+            <div class="instructions">
+                Sestřeluj letadla klikáním na ně!<br><br>
+                <strong>Ovládání:</strong><br>
+                🎯 Klikni na letadlo = Sestřeleno!<br>
+                ⚠️ Červené varování = letadlo přilétá!<br>
+                ✈️ Rychlá červená = 3 body<br>
+                ✈️ Normální šedá = 2 body<br>
+                ✈️ Pomalá zelená = 1 bod<br><br>
+                <strong>💀 Game Over:</strong><br>
+                🏢 2 životy = 2 mrakodrapy<br>
+                💥 Letadlo narazí = budova zničena<br>
+                ☠️ Obě budovy zničeny = GAME OVER<br><br>
+                <strong>📺 Rewarded Ad:</strong><br>
+                💚 Po Game Over můžeš sledovat reklamu<br>
+                🔄 Obnov oba životy a pokračuj!<br><br>
+                <small style="color: #888;">Verze: 8.3 - FIXED LAYOUT �</small>
+            </div>
+            <button class="btn" id="startBtn">START HRY</button>
+            <button class="btn" onclick="location.reload(true)" style="background: #4444ff; box-shadow: 0 4px 0 #0000cc;">🔄 OBNOVIT STRÁNKU</button>
+        </div>
+
+        <div id="gameOverScreen">
+            <h1>GAME OVER</h1>
+            <div id="finalScore"></div>
+            <button class="btn" id="watchAdBtn" style="background: #00CC00; box-shadow: 0 4px 0 #008800;">📺 SLEDUJ REKLAMU - OBNOV HRU</button>
+            <button class="btn" id="restartBtn">HRÁT ZNOVU</button>
+            <button class="btn" id="shareBtn">SDÍLET SKÓRE</button>
+        </div>
+    </div>
+
+    <!-- Video Ad Overlay -->
+    <div id="videoAdOverlay">
+        <div id="videoAdContent">
+            <div id="videoAdPlayer">
+                <div>📺 PŘEHRÁVÁNÍ REKLAMY</div>
+                <div id="adTimer">5</div>
+            </div>
+            <button class="btn" id="skipAdBtn" style="background: #FF4444; box-shadow: 0 4px 0 #CC0000;">PŘESKOČIT REKLAMU</button>
+        </div>
+    </div>
+
+    <script src="game.js?v=21"></script>
+</body>
+</html>
